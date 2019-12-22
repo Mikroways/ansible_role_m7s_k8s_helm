@@ -2,11 +2,11 @@
 
 - name: Set helm cmd namespace
   set_fact:
-    helm_chart_namespace: " -n {{chart.namespace}}"
+    helm_chart_namespace: " -n {{ chart.namespace }}"
   when: chart.namespace is defined
 
 - name: Check if installed
-  shell: helm status{{ helm_chart_namespace}} {{chart.name}}
+  shell: helm status{{ helm_chart_namespace }} {{ chart.name }}
   register: helm_status_cmd
   ignore_errors: True
 
@@ -17,13 +17,13 @@
 
 - name: Set chart configuration filename
   set_fact:
-    chart_config: "/tmp/{{chart.name}}/values.yaml"
+    chart_config: "/tmp/{{ chart.name }}/values.yaml"
   when: not chart_installed and ( chart_values.keys() | length > 0 )
 
 
 - name: Create configuration YAML values
   blockinfile:
-    path: "{{chart_config}}"
+    path: "{{ chart_config }}"
     create: yes
     block: "{{ chart_values | to_nice_yaml(width=80, indent=2) }}"
   when: not chart_installed and ( chart_values.keys() | length > 0 )
@@ -35,7 +35,7 @@
 
 - name: Set helm cmd version
   set_fact:
-    helm_chart_version: " --version {{chart.version}}"
+    helm_chart_version: " --version {{ chart.version }}"
   when: chart.version is defined
 
 - name: Create namespace if not exists
@@ -52,5 +52,5 @@
 
 - name: Remove configuration YAML file
   file:
-    path: "/tmp/{{chart.name}}/"
+    path: "/tmp/{{ chart.name }}/"
     state: absent

@@ -1,11 +1,11 @@
 
 - name: Set helm cmd namespace
   set_fact:
-    helm_chart_namespace: " -n {{chart.namespace}}"
+    helm_chart_namespace: " -n {{ chart.namespace }}"
   when: chart.namespace is defined
 
 - name: Check if installed
-  shell: helm status{{ helm_chart_namespace }} {{chart.name}}
+  shell: helm status{{ helm_chart_namespace }} {{ chart.name }}
   register: helm_status_cmd
   ignore_errors: True
 

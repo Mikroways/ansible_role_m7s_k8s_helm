@@ -3,7 +3,7 @@
   include_tasks: install-helm.yml
 
 - name: Add repos
-  shell: helm repo add {{item.name}} {{item.url}}
+  shell: helm repo add {{ item.name }} {{ item.url }}
   when: ( item.state is not defined ) or (item.state == 'present')
   loop: '{{ m7s_k8s_helm_repos | default([]) }}'
 
@@ -11,7 +11,7 @@
   shell: helm repo update
 
 - name: Remove repos
-  shell: helm repo remove {{item.name}}
+  shell: helm repo remove {{ item.name }}
   when: ( item.state is defined ) and ( item.state == 'absent' )
   loop: '{{ m7s_k8s_helm_repos | default([]) }}'
 

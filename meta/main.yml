@@ -36,7 +36,7 @@ galaxy_info:
     - kubernetes
     - helm
 
-dependencies: 
+dependencies:
  - role: andrewrothstein.kubernetes-helm
    version: v1.3.1
 
