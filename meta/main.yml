@@ -1,4 +1,5 @@
 galaxy_info:
+  role_name: m7s_k8s_helm
   author: Christian Rodriguez
   description: Install charts using helm 3
   company: Mikroways
