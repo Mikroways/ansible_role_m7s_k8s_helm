@@ -1,0 +1,41 @@
+galaxy_info:
+  author: Christian Rodriguez
+  description: Install charts using helm 3
+  company: Mikroways
+
+  # If the issue tracker for your role is not on github, uncomment the
+  # next line and provide a value
+  # issue_tracker_url: http://example.com/issue/tracker
+
+  license: GPLv2
+
+  min_ansible_version: 2.7
+
+  platforms:
+  - name: EL
+    versions:
+    - all
+  - name: Fedora
+    versions:
+    - all
+  - name: Ubuntu
+    versions:
+    - all
+  - name: Debian
+    versions:
+    - jessie
+  - name: Alpine
+    versions:
+    - all
+  - name: macOS
+    versions:
+    - all
+
+  galaxy_tags:
+    - kubernetes
+    - helm
+
+dependencies: 
+ - role: andrewrothstein.kubernetes-helm
+   version: v1.3.1
+

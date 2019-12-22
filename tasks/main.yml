@@ -1,0 +1,30 @@
+---
+- name: Install helm
+  include_tasks: install-helm.yml
+
+- name: Add repos
+  shell: helm repo add {{item.name}} {{item.url}}
+  when: ( item.state is not defined ) or (item.state == 'present')
+  loop: '{{ m7s_k8s_helm_repos | default([]) }}'
+
+- name: Update repos
+  shell: helm repo update
+
+- name: Remove repos
+  shell: helm repo remove {{item.name}}
+  when: ( item.state is defined ) and ( item.state == 'absent' )
+  loop: '{{ m7s_k8s_helm_repos | default([]) }}'
+
+- name: Install charts
+  include_tasks: install-chart.yml
+  when: ( chart.state is not defined ) or ( chart.state == 'present')
+  loop: '{{ m7s_k8s_helm_charts | default([]) }}'
+  loop_control:
+    loop_var: chart
+
+- name: Remove charts
+  include_tasks: remove-chart.yml
+  when: ( chart.state is defined ) and ( chart.state == 'absent')
+  loop: '{{ m7s_k8s_helm_charts | default([]) }}'
+  loop_control:
+    loop_var: chart
