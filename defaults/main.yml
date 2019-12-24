@@ -4,7 +4,7 @@
 m7s_k8s_helm_repos:
  - name: stable
    url: https://kubernetes-charts.storage.googleapis.com/
-m7s_k8s_helm_charts:
+m7s_k8s_helm_charts: []
 #    - name:
 #      chart:
 #      version: 
