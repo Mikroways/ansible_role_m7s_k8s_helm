@@ -2,6 +2,11 @@
 - name: Install helm
   include_tasks: install-helm.yml
 
+- name: Get all repos
+  register: helm_registered_repos
+  shell: "helm repo list | grep -v NAME | awk '{print $1}'"
+  changed_when: helm_registered_repos.rc == 0
+
 - name: Add repos
   command: helm repo add {{ item.name }} {{ item.url }}
   register: result
@@ -9,17 +14,19 @@
   when: ( item.state is not defined ) or (item.state == 'present')
   loop: '{{ m7s_k8s_helm_repos | default([]) }}'
 
+- name: Remove repos
+  command: helm repo remove {{ item.name }}
+  register: result
+  changed_when: result.rc == 0
+  when: ( item.state is defined ) and ( item.state == 'absent' ) and
+        ( item.name in helm_registered_repos.stdout_lines )
+  loop: '{{ m7s_k8s_helm_repos | default([]) }}'
+
 - name: Update repos
   command: helm repo update
   register: result
   changed_when: result.rc == 0
 
-- name: Remove repos
-  command: helm repo remove {{ item.name }}
-  register: result
-  changed_when: result.rc == 0
-  when: ( item.state is defined ) and ( item.state == 'absent' )
-  loop: '{{ m7s_k8s_helm_repos | default([]) }}'
 
 - name: Install charts
   include_tasks: install-chart.yml
