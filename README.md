@@ -1,7 +1,3 @@
-Explicar que crea los namespace, no los elimina
-Explicar que no actualiza, y tampoco cambia los valores
-
-
 # mikroways.m7s_k8s_helm
 
 This role installs helm based on role `andrewrothstein.kubernetes-helm`. Then it
