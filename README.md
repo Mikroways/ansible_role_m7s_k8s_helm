@@ -34,7 +34,19 @@ m7s_k8s_helm_charts:
         kind: DaemonSet
         service:
           type: NodePort
+  - name: dex-authenticator
+    git_repo: https://github.com/mintel/dex-k8s-authenticator.git
+    chart_base_path: charts/dex-k8s-authenticator
+    namespace: dex
+    config_values:
+      global:
+        deployEnv: prod
+      dexK8sAuthenticator:
+        logoUrl: https://mikroways.net/images/mikroways.png
 ```
+
+> The last example installs a chart from git, so `git_repo` and `chart_base_path`
+> must be specified
 
 ### Notes
 
