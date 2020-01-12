@@ -31,13 +31,12 @@
 
 - name: Set helm cmd config option
   set_fact:
-    helm_chart_options: " -f {{ chart_config }}"
-  when: not chart_installed and ( chart_values.keys() | length > 0 )
+    helm_chart_options: "{{ ' -f {{ chart_config }}' if not chart_installed and ( chart_values.keys() | length > 0 ) else '' }}"
 
 - name: Set helm cmd version
   set_fact:
     helm_chart_version: " --version {{ chart.version }}"
-  when: chart.version is defined
+    helm_chart_options: "{{ ' --version {{ chart.version }}' if not chart_installed and ( chart_values.keys() | length > 0 ) else '' }}"
 
 - name: Create namespace if not exists
   k8s:
