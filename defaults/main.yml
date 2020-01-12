@@ -1,6 +1,7 @@
 ---
 # defaults file for mikroways.m7s-k8s-helm
 #
+m7s_k8s_helm_local_charts_root_dir: "{{ ansible_env.HOME}}/.m7s_k8s_helm_local_repos"
 m7s_k8s_helm_repos:
  - name: stable
    url: https://kubernetes-charts.storage.googleapis.com/

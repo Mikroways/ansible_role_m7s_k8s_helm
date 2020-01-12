@@ -1,22 +1,39 @@
+---
+- name: Fail {{ chart.name }} if chart or git_repo not defined
+  fail:
+    msg: You must set one of chart or git_repo fields
+  when: chart.chart is not defined and chart.git_repo is not defined
 
-- name: Set helm cmd namespace
+- name: Fail {{ chart.name }} if chart and git_repo are both defined
+  fail:
+    msg: You must set only one of chart or git_repo fields. Not both
+  when: chart.chart is defined and chart.git_repo is defined
+
+- name: Set helm cmd namespace for {{chart.name}}
   set_fact:
     helm_chart_namespace: " -n {{ chart.namespace }}"
   when: chart.namespace is defined
 
-- name: Check if installed
+- name: Check if installed for {{chart.name}}
   command: helm status{{ helm_chart_namespace }} {{ chart.name }}
   register: helm_status_cmd
   ignore_errors: True
   changed_when: False
 
-- name: Set vars
+- name: Set vars for {{chart.name}}
   set_fact:
     chart_installed: "{{ helm_status_cmd.rc == 0 }}"
 
 
-- name: Uninstall chart
+- name: Uninstall chart for {{chart.name}}
   command: helm uninstall {{ chart.name }}{{ helm_chart_namespace | default('') }}
   register: result
   changed_when: result.rc == 0
   when: chart_installed
+
+
+- name: Remove local repo for {{chart.name}}
+  file:
+    state: absent
+    path: "{{ m7s_k8s_helm_local_charts_root_dir }}/chart.name-chart-{{ chart.version | default('master')}}"
+  when: chart.git_repo is defined

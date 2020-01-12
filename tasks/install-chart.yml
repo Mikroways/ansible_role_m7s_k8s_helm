@@ -1,11 +1,25 @@
 ---
 
-- name: Set helm cmd namespace
-  set_fact:
-    helm_chart_namespace: " -n {{ chart.namespace }}"
-  when: chart.namespace is defined
+- name: Fail {{ chart.name }} if chart or git_repo not defined
+  fail:
+    msg: You must set one of chart or git_repo fields
+  when: chart.chart is not defined and chart.git_repo is not defined
 
-- name: Check if installed
+- name: Fail {{ chart.name }} if chart and git_repo are both defined
+  fail:
+    msg: You must set only one of chart or git_repo fields. Not both
+  when: chart.chart is defined and chart.git_repo is defined
+
+- name: Fail {{ chart.name }} if git_repo is set but not chart_base_path
+  fail:
+    msg: If git_repo is set, chart_base_path must be set
+  when: chart.chart_base_path is not defined and chart.git_repo is defined
+
+- name: Set helm cmd namespace for {{chart.name}}
+  set_fact:
+    helm_chart_namespace: "{{ ' -n {{ chart.namespace }}' if chart.namespace is defined else '' }}"
+
+- name: Check if installed for {{chart.name}}
   command: helm status{{ helm_chart_namespace }} {{ chart.name }}
   register: helm_status_cmd
   ignore_errors: True
@@ -16,29 +30,28 @@
     chart_values: "{{ chart.config_values | default({}) }}"
     chart_installed: "{{ helm_status_cmd.rc == 0 }}"
 
-- name: Set chart configuration filename
+- name: Set chart configuration filename for {{chart.name}}
   set_fact:
     chart_config: "/tmp/{{ chart.name }}/values.yaml"
   when: not chart_installed and ( chart_values.keys() | length > 0 )
 
 
-- name: Create configuration YAML values
+- name: Create configuration YAML values for {{chart.name}}
   blockinfile:
     path: "{{ chart_config }}"
     create: yes
     block: "{{ chart_values | to_nice_yaml(width=80, indent=2) }}"
   when: not chart_installed and ( chart_values.keys() | length > 0 )
 
-- name: Set helm cmd config option
+- name: Set helm cmd config option for {{chart.name}}
   set_fact:
     helm_chart_options: "{{ ' -f {{ chart_config }}' if not chart_installed and ( chart_values.keys() | length > 0 ) else '' }}"
 
 - name: Set helm cmd version
   set_fact:
-    helm_chart_version: " --version {{ chart.version }}"
-    helm_chart_options: "{{ ' --version {{ chart.version }}' if not chart_installed and ( chart_values.keys() | length > 0 ) else '' }}"
+    helm_chart_version: "{{ ' --version {{ chart.version }}' if chart.version is defined else '' }}"
 
-- name: Create namespace if not exists
+- name: Create namespace if not exists for {{chart.name}}
   k8s:
     name: "{{ chart.namespace }}"
     api_version: v1
@@ -46,16 +59,39 @@
     state: present
   when: chart.namespace is defined
 
-- name: Install chart
+- name: Set chart base directory when using git_repo for {{chart.name}}
+  set_fact:
+    chart_to_install_base: "{{ m7s_k8s_helm_local_charts_root_dir }}/{{ chart.name }}-{{ chart.version | default('master')}}"
+  when: chart.git_repo is defined
+
+- name: Set chart directory to install chart from when using git_repo for {{chart.name}}
+  set_fact:
+    chart_to_install: "{{ chart_to_install_base }}/{{ chart.chart_base_path }}"
+  when: chart.git_repo is defined
+
+- name: Download chart from URL
+  git:
+    repo: "{{ chart.git_repo }}"
+    dest: "{{ chart_to_install_base }}"
+  when: chart.git_repo is defined
+
+
+- name: Set chart name to specified chart.chart field for {{chart.name}}
+  set_fact:
+    chart_to_install: "{{ chart.chart }}"
+  when: chart.chart is defined
+
+- name: Install chart from repo for {{chart.name}}
   command: >
-    helm install {{ chart.name }} {{ chart.chart }}
-    {{ helm_chart_options | default('') }}
-    {{ helm_chart_version | default('') }}{{ helm_chart_namespace | default('') }}
+    helm install {{ chart.name }} {{ chart_to_install }}
+    {{ helm_chart_options }}
+    {{ helm_chart_version }}{{ helm_chart_namespace | default('') }}
   register: result
   changed_when: result.rc == 0
   when: not chart_installed
 
-- name: Remove configuration YAML file
+
+- name: Remove configuration YAML file for {{chart.name}}
   file:
     path: "/tmp/{{ chart.name }}/"
     state: absent
