@@ -49,7 +49,7 @@
 
 - name: Set helm cmd version
   set_fact:
-    helm_chart_version: "{{ ' --version '+ chart.version if chart.version is defined else '' }}"
+    helm_chart_version: "{{ ' --version '+ (chart.version | string) if chart.version is defined else '' }}"
 
 - name: Create namespace if not exists for {{chart.name}}
   k8s:
