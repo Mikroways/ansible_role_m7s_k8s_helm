@@ -37,6 +37,7 @@ m7s_k8s_helm_charts:
   - name: dex-authenticator
     git_repo: https://github.com/mintel/dex-k8s-authenticator.git
     chart_base_path: charts/dex-k8s-authenticator
+    upgrade: true
     namespace: dex
     config_values:
       global:
@@ -47,6 +48,9 @@ m7s_k8s_helm_charts:
 
 > The last example installs a chart from git, so `git_repo` and `chart_base_path`
 > must be specified
+> It also shows how to allow upgrade of charts. 
+
+By default charts will not be upgraded
 
 ### Notes
 
@@ -56,9 +60,9 @@ m7s_k8s_helm_charts:
 * When state is not specified, it is assumed to be present
 * When state is absent, chart will be uninstalled but namespace will not be
   deleted
-* When config_values are modified, helm chart will not be updated. Do it manual
-  or uninstall and then install to apply changes.
-
+* When config_values are modified, helm chart will not be updated. 
+  * To upgrade a chart the **upgrade: true** option must be set
+ 
 ## Dependencies
 
 It only depends on `andrewrothstein.kubernetes-helm`

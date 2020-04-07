@@ -33,7 +33,7 @@
 - name: Set chart configuration filename for {{chart.name}}
   set_fact:
     chart_config: "/tmp/{{ chart.name }}/values.yaml"
-  when: not chart_installed and ( chart_values.keys() | length > 0 )
+  when: chart_values.keys() | length > 0
 
 
 - name: Create configuration YAML values for {{chart.name}}
@@ -41,7 +41,7 @@
     path: "{{ chart_config }}"
     create: yes
     block: "{{ chart_values | to_nice_yaml(width=80, indent=2) }}"
-  when: not chart_installed and ( chart_values.keys() | length > 0 )
+  when: chart_values.keys() | length > 0
 
 - name: Set helm cmd config option for {{chart.name}}
   set_fact:
@@ -89,6 +89,15 @@
   register: result
   changed_when: result.rc == 0
   when: not chart_installed
+
+- name: Upgrade chart from repo for {{chart.name}}
+  command: >
+    helm upgrade {{ chart.name }} {{ chart_to_install }}
+    {{ helm_chart_options }}
+    {{ helm_chart_version }}{{ helm_chart_namespace | default('') }}
+  register: result
+  changed_when: result.rc == 0
+  when: chart_installed and (chart.upgrade | default(false))
 
 
 - name: Remove configuration YAML file for {{chart.name}}
