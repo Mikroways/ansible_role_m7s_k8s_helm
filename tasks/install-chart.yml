@@ -45,7 +45,7 @@
 
 - name: Set helm cmd config option for {{chart.name}}
   set_fact:
-    helm_chart_options: "{{ ' -f '+chart_config if not chart_installed and ( chart_values.keys() | length > 0 ) else '' }}"
+    helm_chart_options: "{{ ' -f '+chart_config if ( chart_values.keys() | length > 0 ) else '' }}"
 
 - name: Set helm cmd version
   set_fact:
