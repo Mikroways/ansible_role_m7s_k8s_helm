@@ -1,5 +1,8 @@
 # mikroways.m7s_k8s_helm
 
+[![Ansible Galaxy][galaxy_image]][galaxy_link]
+[![Latest tag][tag_image]][tag_url]
+
 This role installs helm based on role `andrewrothstein.kubernetes-helm`. Then it
 allows defining which charts to install using variables.
 
@@ -91,3 +94,7 @@ It only depends on `andrewrothstein.kubernetes-helm`
 
 GPLv2
 
+[galaxy_image]:         http://img.shields.io/badge/galaxy-mikroways.m7s__k8s__helm-660198.svg?style=flat
+[galaxy_link]:          https://galaxy.ansible.com/Mikroways/m7s_k8s_helm
+[tag_image]:            https://img.shields.io/github/v/tag/Mikroways/ansible_role_m7s_k8s_helm.svg
+[tag_url]:              https://github.com/Mikroways/ansible_role_m7s_k8s_helm/tags
