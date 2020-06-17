@@ -4,7 +4,9 @@
 
 - name: Get all repos
   register: helm_registered_repos
-  shell: "{{ kubernetes_helm_bin_dir }}/helm repo list | grep -v NAME | awk '{print $1}'"
+  shell: |
+    set -eo pipefail
+    {{ kubernetes_helm_bin_dir }}/helm repo list | grep -v NAME | awk '{print $1}'
   changed_when: helm_registered_repos.rc == 0
 
 - name: Add repos

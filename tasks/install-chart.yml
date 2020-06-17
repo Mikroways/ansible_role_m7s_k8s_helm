@@ -1,5 +1,4 @@
 ---
-
 - name: Fail {{ chart.name }} if chart or git_repo not defined
   fail:
     msg: You must set one of chart or git_repo fields
@@ -15,35 +14,35 @@
     msg: If git_repo is set, chart_base_path must be set
   when: chart.chart_base_path is not defined and chart.git_repo is defined
 
-- name: Set helm cmd namespace for {{chart.name}}
+- name: Set helm cmd namespace for {{ chart.name }}
   set_fact:
     helm_chart_namespace: '{{ " -n "+chart.namespace  if chart.namespace is defined else "" }}'
 
-- name: Check if installed for {{chart.name}}
+- name: Check if installed for {{ chart.name }}
   command: "{{ kubernetes_helm_bin_dir }}/helm status{{ helm_chart_namespace }} {{ chart.name }}"
   register: helm_status_cmd
   ignore_errors: True
   changed_when: False
 
-- name: Set vars {{chart.name}}
+- name: Set vars {{ chart.name }}
   set_fact:
     chart_values: "{{ chart.config_values | default({}) }}"
     chart_installed: "{{ helm_status_cmd.rc == 0 }}"
 
-- name: Set chart configuration filename for {{chart.name}}
+- name: Set chart configuration filename for {{ chart.name }}
   set_fact:
     chart_config: "/tmp/{{ chart.name }}/values.yaml"
   when: chart_values.keys() | length > 0
 
 
-- name: Create configuration YAML values for {{chart.name}}
+- name: Create configuration YAML values for {{ chart.name }}
   blockinfile:
     path: "{{ chart_config }}"
     create: yes
     block: "{{ chart_values | to_nice_yaml(width=80, indent=2) }}"
   when: chart_values.keys() | length > 0
 
-- name: Set helm cmd config option for {{chart.name}}
+- name: Set helm cmd config option for {{ chart.name }}
   set_fact:
     helm_chart_options: "{{ ' -f '+chart_config if ( chart_values.keys() | length > 0 ) else '' }}"
 
@@ -51,7 +50,7 @@
   set_fact:
     helm_chart_version: "{{ ' --version '+ (chart.version | string) if chart.version is defined else '' }}"
 
-- name: Create namespace if not exists for {{chart.name}}
+- name: Create namespace if not exists for {{ chart.name }}
   k8s:
     name: "{{ chart.namespace }}"
     api_version: v1
@@ -59,12 +58,12 @@
     state: present
   when: chart.namespace is defined
 
-- name: Set chart base directory when using git_repo for {{chart.name}}
+- name: Set chart base directory when using git_repo for {{ chart.name }}
   set_fact:
-    chart_to_install_base: "{{ m7s_k8s_helm_local_charts_root_dir }}/{{ chart.name }}-{{ chart.version | default('master')}}"
+    chart_to_install_base: "{{ m7s_k8s_helm_local_charts_root_dir }}/{{ chart.name }}-{{ chart.version | default('master') }}"
   when: chart.git_repo is defined
 
-- name: Set chart directory to install chart from when using git_repo for {{chart.name}}
+- name: Set chart directory to install chart from when using git_repo for {{ chart.name }}
   set_fact:
     chart_to_install: "{{ chart_to_install_base }}/{{ chart.chart_base_path }}"
   when: chart.git_repo is defined
@@ -73,15 +72,16 @@
   git:
     repo: "{{ chart.git_repo }}"
     dest: "{{ chart_to_install_base }}"
+    version: "{{ chart.version | default(omit) }}"
   when: chart.git_repo is defined
 
 
-- name: Set chart name to specified chart.chart field for {{chart.name}}
+- name: Set chart name to specified chart.chart field for {{ chart.name }}
   set_fact:
     chart_to_install: "{{ chart.chart }}"
   when: chart.chart is defined
 
-- name: Install chart from repo for {{chart.name}}
+- name: Install chart from repo for {{ chart.name }}
   command: >
     {{ kubernetes_helm_bin_dir }}/helm install {{ chart.name }} {{ chart_to_install }}
     {{ helm_chart_options }}
@@ -90,7 +90,7 @@
   changed_when: result.rc == 0
   when: not chart_installed
 
-- name: Upgrade chart from repo for {{chart.name}}
+- name: Upgrade chart from repo for {{ chart.name }}
   command: >
     {{ kubernetes_helm_bin_dir }}/helm upgrade {{ chart.name }} {{ chart_to_install }}
     {{ helm_chart_options }}
@@ -100,7 +100,7 @@
   when: chart_installed and (chart.upgrade | default(false))
 
 
-- name: Remove configuration YAML file for {{chart.name}}
+- name: Remove configuration YAML file for {{ chart.name }}
   file:
     path: "/tmp/{{ chart.name }}/"
     state: absent

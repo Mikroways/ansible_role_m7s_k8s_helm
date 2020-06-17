@@ -8,6 +8,6 @@ m7s_k8s_helm_repos:
 m7s_k8s_helm_charts: []
 #    - name:
 #      chart:
-#      version: 
+#      version:
 #      namespace:
 #      config_values:
