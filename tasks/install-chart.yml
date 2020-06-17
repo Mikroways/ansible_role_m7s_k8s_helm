@@ -20,7 +20,7 @@
     helm_chart_namespace: '{{ " -n "+chart.namespace  if chart.namespace is defined else "" }}'
 
 - name: Check if installed for {{chart.name}}
-  command: helm status{{ helm_chart_namespace }} {{ chart.name }}
+  command: "{{ kubernetes_helm_bin_dir }}/helm status{{ helm_chart_namespace }} {{ chart.name }}"
   register: helm_status_cmd
   ignore_errors: True
   changed_when: False
@@ -83,7 +83,7 @@
 
 - name: Install chart from repo for {{chart.name}}
   command: >
-    helm install {{ chart.name }} {{ chart_to_install }}
+    {{ kubernetes_helm_bin_dir }}/helm install {{ chart.name }} {{ chart_to_install }}
     {{ helm_chart_options }}
     {{ helm_chart_version }}{{ helm_chart_namespace | default('') }}
   register: result
@@ -92,7 +92,7 @@
 
 - name: Upgrade chart from repo for {{chart.name}}
   command: >
-    helm upgrade {{ chart.name }} {{ chart_to_install }}
+    {{ kubernetes_helm_bin_dir }}/helm upgrade {{ chart.name }} {{ chart_to_install }}
     {{ helm_chart_options }}
     {{ helm_chart_version }}{{ helm_chart_namespace | default('') }}
   register: result

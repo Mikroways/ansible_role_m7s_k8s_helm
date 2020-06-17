@@ -4,18 +4,18 @@
 
 - name: Get all repos
   register: helm_registered_repos
-  shell: "helm repo list | grep -v NAME | awk '{print $1}'"
+  shell: "{{ kubernetes_helm_bin_dir }}/helm repo list | grep -v NAME | awk '{print $1}'"
   changed_when: helm_registered_repos.rc == 0
 
 - name: Add repos
-  command: helm repo add {{ item.name }} {{ item.url }}
+  command: "{{ kubernetes_helm_bin_dir }}/helm repo add {{ item.name }} {{ item.url }}"
   register: result
   changed_when: result.rc == 0
   when: ( item.state is not defined ) or (item.state == 'present')
   loop: '{{ m7s_k8s_helm_repos | default([]) }}'
 
 - name: Remove repos
-  command: helm repo remove {{ item.name }}
+  command: "{{ kubernetes_helm_bin_dir }}/helm repo remove {{ item.name }}"
   register: result
   changed_when: result.rc == 0
   when: ( item.state is defined ) and ( item.state == 'absent' ) and
@@ -23,7 +23,7 @@
   loop: '{{ m7s_k8s_helm_repos | default([]) }}'
 
 - name: Update repos
-  command: helm repo update
+  command: "{{ kubernetes_helm_bin_dir }}/helm repo update"
   register: result
   changed_when: result.rc == 0
 
