@@ -39,4 +39,4 @@ galaxy_info:
 
 dependencies:
   - role: andrewrothstein.kubernetes-helm
-    version: v1.3.1
+    version: v1.3.14
